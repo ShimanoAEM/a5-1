@@ -1,0 +1,34 @@
+{
+    "cofficeProList": [
+        {
+            "code": "product-01",
+            "productNmae": "拿铁咖啡",
+            "stockNum": "100",
+            "price":"30"
+        },
+        {
+             "code": "product-01",
+            "productNmae": "摩卡咖啡",
+            "stockNum": "100",
+            "price":"30"
+        },
+        {
+            "code": "product-01",
+            "productNmae": "美式咖啡",
+            "stockNum": "100",
+            "price":"30"
+        },
+        {
+            "code": "product-01",
+            "productNmae": "星冰乐",
+            "stockNum": "100",
+            "price":"30"
+        },
+        {
+            "code": "product-01",
+            "productNmae": "焦糖咖啡",
+            "stockNum": "100",
+            "price":"30"
+        }
+    ]
+}
