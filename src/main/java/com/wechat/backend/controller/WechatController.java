@@ -22,8 +22,9 @@ import com.wechat.backend.dao.CustomerRepository;
 import com.wechat.backend.dao.ProductRepository;
 import com.wechat.backend.domain.Customer;
 import com.wechat.backend.domain.Product;
-import com.wechat.backend.domain.WechatNote;
+import com.wechat.backend.domain.Wishlist;
 import com.wechat.backend.service.CustomerService;
+import com.wechat.backend.service.CustomerWishlistService;
 
 @RestController
 public class WechatController {
@@ -35,6 +36,9 @@ public class WechatController {
 	
 	@Autowired
 	CustomerService customerService;
+	
+	@Autowired
+	CustomerWishlistService customerWishlistService;
 	
 	@Autowired
 	private ProductRepository productRepository;
@@ -100,6 +104,7 @@ public class WechatController {
 	
 	@RequestMapping(value = "/getOpenId", method = { RequestMethod.GET, RequestMethod.POST }) // 获取用户openid
 	public String getOpenId(@RequestParam("code") String code) {
+		//System.out.println("=============="+code);
 		String openId = customerService.getOpenId(code);
 		Customer customer = null;
 		customer = customerRepository.findByOpenId(openId);
@@ -180,5 +185,52 @@ public class WechatController {
         String destPath = path + fileName;
         filePath = destPath;
 		return filePath;
+	}
+	
+	/**
+	 * review customer own wishlist
+	 * @param openId
+	 * @return
+	 */
+	@RequestMapping(value = "/myWishlist", method = { RequestMethod.GET, RequestMethod.POST }) // 获取用户信息
+	public List<Wishlist> getMyWishlist(@Param("openId") String openId) {
+		List<Wishlist> wishlists = new ArrayList<Wishlist>();
+		if (StringUtils.isNotEmpty(openId)) {
+			wishlists = customerWishlistService.getMyWishlist(openId);
+			return wishlists;
+		}
+		return wishlists;
+	}
+	
+	/**
+	 * add product to my wishlist
+	 * @param openId
+	 * @return
+	 */
+	@RequestMapping(value = "/saveWishlist", method = { RequestMethod.GET, RequestMethod.POST }) 
+	public String saveWishlist(@Param("openId") String openId, @RequestParam("productCode") String productcode)
+	{
+		logger.info("The openId is ......"+openId);
+		if (StringUtils.isNotEmpty(openId)) {
+			customerWishlistService.saveWishlist(openId, productcode);
+			return "success";
+		}
+		return "fail";
+	}
+	
+	/**
+	 * remove my wish list 
+	 * @param openId
+	 * @return
+	 */
+	@RequestMapping(value = "/removeMywishlist", method = { RequestMethod.GET, RequestMethod.POST })
+	public String getUploadProductsByUser(@Param("openId") String openId,
+			@RequestParam("wishid") String wishid) {
+		
+		if (StringUtils.isNotEmpty(openId)) {
+			customerWishlistService.removeWishlist(openId, wishid);
+			return "success";
+		}
+		return "fail";
 	}
 }
