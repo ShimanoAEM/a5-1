@@ -40,7 +40,7 @@ public class CustomerServiceImpl implements CustomerService{
 					.replace("SECRET", appSecret).replace("JSCODE", jsCode);
 			JSONObject jsonObject = CommonUtil.httpsRequest(requestUrl, "GET", null);
 			openId = (jsonObject != null) ? jsonObject.getString("openid") : StringUtils.EMPTY;
-			LOG.info("The openId is......"+openId);
+			//LOG.info("The openId is......"+openId);
 		}
 		return openId;
 	}

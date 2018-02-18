@@ -1,8 +1,11 @@
 package com.wechat.backend.domain;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
 @Entity
@@ -11,20 +14,18 @@ public class Wishlist {
 	@Id
 	@GeneratedValue
 	private Long wishId;
-	
-	private String productName;
-	
-	private Long productCode;
-	
-	private Double price;
-	
-	private String description;
-	//seller openid
-	private String sellerOpenId;
-	//visit customer
+
 	private String openId;
 	
-	private String image;
+	//private String image;
+	
+	@OneToOne(cascade = CascadeType.ALL)
+	@JoinColumn(name="wechatcustomer_openId")
+	private Customer customer;
+	
+	@OneToOne(cascade = CascadeType.ALL)
+	@JoinColumn(name="wechatproduct_code")
+	private Product product;
 
 	public Long getWishId() {
 		return wishId;
@@ -34,44 +35,20 @@ public class Wishlist {
 		this.wishId = wishId;
 	}
 
-	public String getProductName() {
-		return productName;
+	public Customer getCustomer() {
+		return customer;
 	}
 
-	public void setProductName(String productName) {
-		this.productName = productName;
+	public void setCustomer(Customer customer) {
+		this.customer = customer;
 	}
 
-	public Long getProductCode() {
-		return productCode;
+	public Product getProduct() {
+		return product;
 	}
 
-	public void setProductCode(Long productCode) {
-		this.productCode = productCode;
-	}
-
-	public Double getPrice() {
-		return price;
-	}
-
-	public void setPrice(Double price) {
-		this.price = price;
-	}
-
-	public String getDescription() {
-		return description;
-	}
-
-	public void setDescription(String description) {
-		this.description = description;
-	}
-
-	public String getSellerOpenId() {
-		return sellerOpenId;
-	}
-
-	public void setSellerOpenId(String sellerOpenId) {
-		this.sellerOpenId = sellerOpenId;
+	public void setProduct(Product product) {
+		this.product = product;
 	}
 
 	public String getOpenId() {
@@ -80,14 +57,6 @@ public class Wishlist {
 
 	public void setOpenId(String openId) {
 		this.openId = openId;
-	}
-
-	public String getImage() {
-		return image;
-	}
-
-	public void setImage(String image) {
-		this.image = image;
 	}
 	
 	

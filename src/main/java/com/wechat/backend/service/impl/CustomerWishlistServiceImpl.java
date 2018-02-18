@@ -5,6 +5,8 @@ import java.util.List;
 
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Join;
+import javax.persistence.criteria.JoinType;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
@@ -15,9 +17,11 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.util.ListUtils;
 
+import com.wechat.backend.dao.CustomerRepository;
 import com.wechat.backend.dao.ProductRepository;
 import com.wechat.backend.dao.WishlistRepository;
 import com.wechat.backend.data.WishlistQuery;
+import com.wechat.backend.domain.Customer;
 import com.wechat.backend.domain.Product;
 import com.wechat.backend.domain.Wishlist;
 import com.wechat.backend.service.CustomerWishlistService;
@@ -33,6 +37,9 @@ public class CustomerWishlistServiceImpl implements CustomerWishlistService{
 	@Autowired
 	private ProductRepository productRepository;
 	
+	@Autowired
+	private CustomerRepository customerRepository;
+	
 	/**
 	 * save one product in wishlist
 	 * @param openId
@@ -41,46 +48,39 @@ public class CustomerWishlistServiceImpl implements CustomerWishlistService{
 	 */
 	public void saveWishlist(String openId, String productcode){
 	
-		List<Wishlist> wishes= this.findByOpenId(openId);
-		Product product = productRepository.findByCode(Long.valueOf(productcode));
-		if(wishes.isEmpty()){
-			Wishlist wish = new Wishlist();
+		//List<Wishlist> wishes= this.findByOpenId(openId);
+		//check whether have collect
+		WishlistQuery query = new WishlistQuery();
+		query.setProductCode(productcode);
+		query.setOpenId(openId);
+		List<Wishlist> wishes = wishlistRepository.findAll(getSpec(query));
+		Product product = null;
+		Customer releaseUser = null;
+		product = productRepository.findByCode(Long.valueOf(productcode));
+		
+		if (product != null) {
+			releaseUser = customerRepository.findByOpenId(product.getOpenId());
+		}
+		if(!ListUtils.isEmpty(wishes)){
+			Wishlist wish = wishes.get(0);
+			if(product != null){
+				wish.setProduct(product);
+			}
+			if(releaseUser != null){
+				wish.setCustomer(releaseUser);
+			}
 			wish.setOpenId(openId);
-			wish.setPrice(product.getPrice());
-			wish.setDescription(product.getDescription());
-			wish.setProductCode(product.getCode());
-			wish.setProductName(product.getName());
-			wish.setSellerOpenId(product.getOpenId());
-			wish.setImage(product.getImage());
 			wishlistRepository.save(wish);
 		}else{
-			//check whether have collect
-			WishlistQuery query = new WishlistQuery();
-			query.setProductCode(productcode);
-			query.setOpenId(openId);
-			List<Wishlist> list = wishlistRepository.findAll(getSpec(query));
-			if(!ListUtils.isEmpty(list)){
-				Wishlist wish = list.get(0);
-				wish.setOpenId(openId);
-				wish.setPrice(product.getPrice());
-				wish.setDescription(product.getDescription());
-				wish.setProductCode(product.getCode());
-				wish.setProductName(product.getName());
-				wish.setSellerOpenId(product.getOpenId());
-				wish.setImage(product.getImage());
-				wishlistRepository.save(wish);
-			}else{
-				Wishlist wish = new Wishlist();
-				wish.setOpenId(openId);
-				wish.setPrice(product.getPrice());
-				wish.setDescription(product.getDescription());
-				wish.setProductCode(product.getCode());
-				wish.setProductName(product.getName());
-				wish.setSellerOpenId(product.getOpenId());
-				wish.setImage(product.getImage());
-				wishlistRepository.save(wish);
+			Wishlist wish = new Wishlist();
+			if(product != null){
+				wish.setProduct(product);
 			}
-			
+			if(releaseUser != null){
+				wish.setCustomer(releaseUser);
+			}
+			wish.setOpenId(openId);
+			wishlistRepository.save(wish);
 		}
 		
 	}
@@ -133,12 +133,15 @@ public class CustomerWishlistServiceImpl implements CustomerWishlistService{
                 if (StringUtils.isNotBlank(wishquery.getOpenId())) {
                     predicates.add(cb.equal(root.get("openId"), wishquery.getOpenId()));
                 }
-                if (StringUtils.isNotBlank(wishquery.getProductCode())) {
-                    predicates.add(cb.equal(root.get("productCode"), wishquery.getProductCode()));
-                }
-                if (StringUtils.isNotBlank(wishquery.getSellerOpenId())) {
-                    predicates.add(cb.equal(root.get("sellerOpenId"), wishquery.getSellerOpenId()));
-                }
+                //左连接 
+                Join<Wishlist,Product> depJoin = root.join(root.getModel().getSingularAttribute("product",Product.class),JoinType.LEFT ) ; 
+                predicates.add(cb.equal(depJoin.get("code").as(Long.class), wishquery.getProductCode())); 
+                //if (StringUtils.isNotBlank(wishquery.getProductCode())) {
+               //     predicates.add(cb.equal(root.get("Product.code"), wishquery.getProductCode()));
+               // }
+                //if (StringUtils.isNotBlank(wishquery.getSellerOpenId())) {
+               //     predicates.add(cb.equal(root.get("sellerOpenId"), wishquery.getSellerOpenId()));
+               // }
                 query.where(predicates.toArray(new Predicate[predicates.size()]));
                 return null;
             }
