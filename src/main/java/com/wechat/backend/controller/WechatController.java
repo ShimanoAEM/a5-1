@@ -72,6 +72,10 @@ public class WechatController {
 	public Product getProduct(@RequestParam("productCode") String productCode) {
 		Product product = null;
 		product = productRepository.findByCode(Long.valueOf(productCode));
+		if (product != null) {
+			product.setViewNum(product.getViewNum() != null ? product.getViewNum() + 1 : 0);
+			productRepository.save(product);
+		}
 		return product;
 	}
 	
@@ -111,6 +115,26 @@ public class WechatController {
 		if (customer == null) {
 			customer = new Customer();
 			customer.setOpenId(openId);
+			customerRepository.save(customer);
+		}
+		return openId;
+	}
+	
+	@RequestMapping(value = "/saveAvatar", method = { RequestMethod.GET, RequestMethod.POST })
+	public String saveUserAvatar(@RequestParam("openId") String openId , 
+			@RequestParam("avatar") String avatarUrl , 
+			@RequestParam("wechatName") String wechatName) {
+		Customer customer = null;
+		customer = customerRepository.findByOpenId(openId);
+		if (customer == null) {
+			customer = new Customer();
+			customer.setOpenId(openId);
+			customer.setAvatarUrl(avatarUrl);
+			customer.setWechatName(wechatName);
+			customerRepository.save(customer);
+		}else {
+			customer.setAvatarUrl(avatarUrl);
+			customer.setWechatName(wechatName);
 			customerRepository.save(customer);
 		}
 		return openId;

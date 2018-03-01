@@ -34,6 +34,8 @@ public class Product {
 	
 	private Boolean isOnline;
 	
+	private Long viewNum;
+	
 	public Long getCode() {
 		return code;
 	}
@@ -121,6 +123,13 @@ public class Product {
 	public void setIsOnline(Boolean isOnline) {
 		this.isOnline = isOnline;
 	}
-		
+
+	public Long getViewNum() {
+		return viewNum;
+	}
+
+	public void setViewNum(Long viewNum) {
+		this.viewNum = viewNum;
+	}
 
 }

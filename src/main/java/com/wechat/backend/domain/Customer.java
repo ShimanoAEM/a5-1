@@ -21,6 +21,9 @@ public class Customer {
 	
 	private String wechatCode;
 	
+	private String avatarUrl;
+	
+	private String wechatName;
 
 	public String getOpenId() {
 		return openId;
@@ -68,6 +71,22 @@ public class Customer {
 
 	public void setWechatCode(String wechatCode) {
 		this.wechatCode = wechatCode;
+	}
+
+	public String getAvatarUrl() {
+		return avatarUrl;
+	}
+
+	public void setAvatarUrl(String avatarUrl) {
+		this.avatarUrl = avatarUrl;
+	}
+
+	public String getWechatName() {
+		return wechatName;
+	}
+
+	public void setWechatName(String wechatName) {
+		this.wechatName = wechatName;
 	}
 	
 	
